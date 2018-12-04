@@ -31,7 +31,7 @@ namespace StandingHelper
             ProgramProperties.BusinessRunning = true;
             while (ProgramProperties.Running)
             {
-                await Task.Run(()=> StandingMethod());
+                await Task.Run(() => StandingMethod());
                 await Task.Run(() => SittingMethod());
             }
 
@@ -46,20 +46,13 @@ namespace StandingHelper
             }
             ProgramProperties.Standing = true;
             ProgramProperties.TimeRemaining = DateTime.Now.AddMinutes(ProgramProperties.StandingTime);
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "StandingHelper.sounds.Geralt of Rivia - Let's get this over with_.wav";
-            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-            {
-                System.Media.SoundPlayer player = new System.Media.SoundPlayer(stream);
-                player.Play();
-                player.Dispose();
-            }
-
+            PlayStandSound();
             while (ProgramProperties.TimeRemaining > DateTime.Now && ProgramProperties.Running && ProgramProperties.Standing)
             {
                 ProgramProperties.ProgramText = $"Standing for {(ProgramProperties.TimeRemaining - DateTime.Now).Minutes} minutes...";
                 Thread.Sleep(1000);
             }
+            PlaySitSound();
         }
 
         public void SittingMethod()
@@ -70,19 +63,35 @@ namespace StandingHelper
             }
             ProgramProperties.Standing = false;
             ProgramProperties.TimeRemaining = DateTime.Now.AddMinutes(ProgramProperties.SittingTime);
-            var assembly = Assembly.GetExecutingAssembly();
+            PlaySitSound();
+            while (ProgramProperties.TimeRemaining > DateTime.Now && ProgramProperties.Running && !ProgramProperties.Standing)
+            {
+                ProgramProperties.ProgramText = $"Sitting for {(ProgramProperties.TimeRemaining - DateTime.Now).Minutes} minutes...";
+                Thread.Sleep(1000);
+            }
+            PlayStandSound();
+        }
+
+        public void PlayStandSound()
+        {
+            var resourceName = "StandingHelper.sounds.Geralt of Rivia - Let's get this over with_.wav";
+            PlaySound(resourceName);
+        }
+
+        public void PlaySitSound()
+        {
             var resourceName = "StandingHelper.sounds.Vilgefortz - Quite the menial task_.wav";
+            PlaySound(resourceName);
+        }
+
+        public void PlaySound(string resourceName)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
             using (Stream stream = assembly.GetManifestResourceStream(resourceName))
             {
                 System.Media.SoundPlayer player = new System.Media.SoundPlayer(stream);
                 player.Play();
                 player.Dispose();
-            }
-
-            while (ProgramProperties.TimeRemaining > DateTime.Now && ProgramProperties.Running && !ProgramProperties.Standing)
-            {
-                ProgramProperties.ProgramText = $"Sitting for {(ProgramProperties.TimeRemaining - DateTime.Now).Minutes} minutes...";
-                Thread.Sleep(1000);
             }
         }
 
@@ -93,7 +102,7 @@ namespace StandingHelper
             ProgramProperties.Running = false;
             ToggleOptions();
         }
-        
+
         private async void StartButton_Click(object sender, RoutedEventArgs e)
         {
             ProgramProperties.Running = true;
