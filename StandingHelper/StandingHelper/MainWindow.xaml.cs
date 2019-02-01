@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Media;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,10 +41,6 @@ namespace StandingHelper
 
         public void StandingMethod()
         {
-            while (!ProgramProperties.Standing && ProgramProperties.Running)
-            {
-                ProgramProperties.ProgramText = "Click \"Stand\" Button";
-            }
             ProgramProperties.Standing = true;
             ProgramProperties.TimeRemaining = DateTime.Now.AddMinutes(ProgramProperties.StandingTime);
             PlayStandSound();
@@ -57,10 +54,6 @@ namespace StandingHelper
 
         public void SittingMethod()
         {
-            while (ProgramProperties.Standing && ProgramProperties.Running)
-            {
-                ProgramProperties.ProgramText = "Click \"Sit\" Button";
-            }
             ProgramProperties.Standing = false;
             ProgramProperties.TimeRemaining = DateTime.Now.AddMinutes(ProgramProperties.SittingTime);
             PlaySitSound();
@@ -74,8 +67,11 @@ namespace StandingHelper
 
         public void PlayStandSound()
         {
-            var resourceName = "StandingHelper.sounds.Geralt of Rivia - Let's get this over with_.wav";
-            PlaySound(resourceName);
+            SystemSounds.Asterisk.Play();
+            System.Threading.Thread.Sleep(2000);
+            SystemSounds.Asterisk.Play();
+            System.Threading.Thread.Sleep(2000);
+            SystemSounds.Asterisk.Play();
         }
 
         public void PlaySitSound()
